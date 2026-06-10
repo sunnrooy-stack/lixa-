@@ -345,7 +345,8 @@ export const deploy=async (req,res)=>{
         }
 
         website.deployed=true
-        website.deployUrl=`${process.env.FRONTEND_URL}/site/${website.slug}`
+        const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || "http://localhost:5173";
+        website.deployUrl=`${frontendUrl}/site/${website.slug}`
         await website.save()
 
         return res.status(200).json({

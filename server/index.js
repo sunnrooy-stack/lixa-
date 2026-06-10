@@ -17,7 +17,13 @@ const port=process.env.PORT || 5000
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: ["http://localhost:5173", "https://lixaweb-ai.onrender.com"],
+    origin: function (origin, callback) {
+        if (!origin || origin.startsWith("http://localhost:") || origin === "https://lixaweb-ai.onrender.com") {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials:true
 }))
 app.use("/api/auth",authRouter)
