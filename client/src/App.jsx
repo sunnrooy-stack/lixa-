@@ -11,7 +11,7 @@ import Pricing from './pages/Pricing'
 import Terms from './pages/Terms'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 
-export const serverUrl="http://localhost:8000"
+export const serverUrl="https://lixa-5urw.onrender.com"
 function App() {
   useGetCurrentUser()
   const {userData}=useSelector(state=>state.user)
