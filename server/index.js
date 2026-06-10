@@ -25,6 +25,9 @@ app.use("/api/user",userRouter)
 app.use("/api/website",websiteRouter)
 app.use("/api/billing",billingRouter)
 
+app.get("/", (req, res) => {
+    res.send("Lixa API is running...");
+})
 
 app.listen(port,()=>{
     console.log("server started")
