@@ -1,8 +1,8 @@
-import { ArrowLeft } from 'lucide-react'
-import React, { useEffect } from 'react'
+import { ArrowLeft, ArrowRight, Monitor, Smartphone, Palette, PlayCircle, X, Check } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from "motion/react"
-import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import axios from "axios"
 import { serverUrl } from '../App'
 import lixaLogo from '../assets/lixa-logo.png'
@@ -14,14 +14,76 @@ const PHASES = [
     "Adding animations & interactions…",
     "Final quality checks…",
 ];
+
+const CATEGORIES = [
+    { id: '3d', name: '3D Website', icon: Monitor, prompt: "Create a stunning 3D website with interactive models..." },
+    { id: 'app', name: 'App Build', icon: Smartphone, prompt: "Build a modern mobile app UI with smooth animations..." },
+    { id: 'design', name: 'Design', icon: Palette, prompt: "Design a beautiful landing page with glassmorphism..." },
+    { id: 'animation', name: 'Animation', icon: PlayCircle, prompt: "Create a web application with dynamic scroll animations..." }
+];
+
 function Generate() {
+    const { userData } = useSelector(state => state.user) || {}
     const navigate = useNavigate()
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [phaseIndex, setPhaseIndex] = useState(0)
     const [error,setError]=useState("")
+    const [placeholderText, setPlaceholderText] = useState("")
+    const [selectedCategory, setSelectedCategory] = useState(null)
+
+    useEffect(() => {
+        const placeholders = [
+            "Build Your Dream Website",
+            "Create Stunning Designs",
+            "Launch Your Business Online"
+        ];
+        
+        let currentTextIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let timeout;
+
+        const type = () => {
+            const currentString = placeholders[currentTextIndex];
+            
+            if (isDeleting) {
+                setPlaceholderText(currentString.substring(0, charIndex - 1));
+                charIndex--;
+            } else {
+                setPlaceholderText(currentString.substring(0, charIndex + 1));
+                charIndex++;
+            }
+
+            let typingSpeed = isDeleting ? 30 : 80;
+
+            if (!isDeleting && charIndex === currentString.length) {
+                typingSpeed = 2000; // Pause at end of phrase
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                currentTextIndex = (currentTextIndex + 1) % placeholders.length;
+                typingSpeed = 500; // Pause before typing next phrase
+            }
+
+            timeout = setTimeout(type, typingSpeed);
+        };
+
+        timeout = setTimeout(type, 500);
+
+        return () => clearTimeout(timeout);
+    }, []);
+
     const handleGenerateWebsite = async () => {
+        if (userData?.credits < 50) {
+            setError("You do not have enough credits to generate a website.")
+            setTimeout(() => {
+                navigate("/pricing")
+            }, 1500)
+            return;
+        }
+
         setLoading(true)
         try {
             const result = await axios.post(`${serverUrl}/api/website/generate`, { prompt }, { withCredentials: true })
@@ -31,10 +93,18 @@ function Generate() {
             navigate(`/editor/${result.data.websiteId}`)
         } catch (error) {
             setLoading(false)
-            setError(error.response.data.message || "something went wrong")
+            const errorMsg = error.response?.data?.message || "something went wrong"
+            setError(errorMsg)
             console.log(error)
+            
+            if (errorMsg.toLowerCase().includes("credits")) {
+                setTimeout(() => {
+                    navigate("/pricing")
+                }, 1500)
+            }
         }
     }
+
 
     useEffect(() => {
         if (!loading) {
@@ -85,45 +155,68 @@ function Generate() {
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-center mb-16"
+                    className="text-center mb-10"
                 >
-                    <h1 className='text-4xl md:text-5xl font-bold mb-5 leading-tight'>
-                        Build Websites with
-                        <span className='block bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent'>Real AI Power</span>
+                    <h1 className='text-3xl md:text-4xl font-semibold mb-3'>
+                        Hi {userData?.name || 'there'}, what do you want to create?
                     </h1>
-                    <p className='text-zinc-400 max-w-2xl mx-auto'>
-                        This process may take several minutes.
-                        LIXA AI focuses on quality, not shortcuts.
-                    </p>
-
                 </motion.div>
-                <div className='mb-14'>
-                    <h1 className='text-xl font-semibold mb-2'>Describe your website</h1>
+                <div className='mb-8 max-w-4xl mx-auto'>
                     <div className='relative'>
                         <textarea
                             onChange={(e) => setPrompt(e.target.value)}
                             value={prompt}
-                            placeholder='Describe your website in detail...'
-                            className='w-full h-56 p-6 rounded-3xl bg-black/60 border border-white/10 outline-none resize-none text-sm leading-relaxed focus:ring-2 focus:ring-white/20'></textarea>
+                            placeholder={`${placeholderText}|`}
+                            className='w-full min-h-[100px] p-5 pb-16 rounded-3xl bg-black/60 border border-white/20 outline-none resize-none text-base leading-relaxed focus:ring-2 focus:ring-blue-500/50 transition-all'></textarea>
+                        
+                        {selectedCategory && (() => {
+                            const category = CATEGORIES.find(c => c.id === selectedCategory);
+                            if (!category) return null;
+                            const Icon = category.icon;
+                            return (
+                                <div className='absolute bottom-4 left-4 flex items-center gap-2 bg-blue-500/20 text-blue-400 px-3 py-1.5 rounded-lg text-sm border border-blue-500/30'>
+                                    <Icon size={14} />
+                                    <span className='font-medium'>{category.name}</span>
+                                    <button onClick={() => {
+                                        setSelectedCategory(null);
+                                    }} className='hover:text-white transition-colors ml-1'>
+                                        <X size={14} />
+                                    </button>
+                                </div>
+                            );
+                        })()}
+
+                        <div className='absolute bottom-4 right-4 flex gap-3'>
+                            <button 
+                                onClick={handleGenerateWebsite}
+                                disabled={!prompt.trim() && loading}
+                                className={`p-2 rounded-xl transition-all flex items-center justify-center ${prompt.trim() && !loading ? 'bg-white text-black hover:scale-105' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}
+                            >
+                                <ArrowRight size={20} />
+                            </button>
+                        </div>
                     </div>
                     
+                    {error && <p className='mt-4 text-sm text-red-400 text-center'>{error}</p>}
 
-                    {error && <p className='mt-4 text-sm text-red-400'>{error}</p>}
+                    <div className='flex flex-wrap justify-center gap-6 mt-8'>
+                        {CATEGORIES.map(category => {
+                            const isSelected = selectedCategory === category.id;
+                            const Icon = isSelected ? Check : category.icon;
+                            
+                            return (
+                                <button key={category.id} className={`flex flex-col items-center gap-2 transition-colors group ${isSelected ? 'text-white' : 'text-zinc-400 hover:text-white'}`} onClick={() => {
+                                    setSelectedCategory(category.id);
+                                }}>
+                                    <div className={`p-4 rounded-2xl border transition-colors ${isSelected ? 'bg-white text-black border-white' : 'bg-white/5 border-white/10 group-hover:bg-white/10'}`}>
+                                        <Icon size={24} />
+                                    </div>
+                                    <span className='text-xs font-medium'>{category.name}</span>
+                                </button>
+                            )
+                        })}
+                    </div>
 
-                </div>
-                <div className='flex justify-center'>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={handleGenerateWebsite}
-                        disabled={!prompt.trim() && loading}
-                        className={`px-14 py-4 rounded-2xl font-semibold text-lg ${prompt.trim() && !loading
-                            ? "bg-white text-black"
-                            : "bg-white/20 text-zinc-400 cursor-not-allowed"
-                            }`}
-                    >
-                        Generate Website
-                    </motion.button>
                 </div>
 
 

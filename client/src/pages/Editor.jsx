@@ -1,22 +1,27 @@
 import axios from 'axios'
 import React from 'react'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { serverUrl } from '../App'
 import { useState } from 'react'
-import { ArrowLeft, Check, Code, Code2, MessageCircle, MessageSquare, Monitor, Rocket, Send, Share2, X } from 'lucide-react'
+import { ArrowLeft, Check, Code, Code2, MessageCircle, MessageSquare, Monitor, Rocket, Send, Share2, X, Plus } from 'lucide-react'
 import { useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+
+import { useSelector } from 'react-redux'
 
 import Editor from '@monaco-editor/react';
 function WebsiteEditor() {
     const { id } = useParams()
+    const navigate = useNavigate()
+    const { userData } = useSelector(state => state.user) || {}
     const [website, setWebsite] = useState(null)
     const [error, setError] = useState("")
     const [code, setCode] = useState("")
     const [messages, setMessages] = useState([])
     const [prompt, setPrompt] = useState("")
     const iframeRef = useRef(null)
+    const fileInputRef = useRef(null)
     const [updateLoading, setUpdateLoading] = useState(false)
     const [thinkingIndex, setThinkingIndex] = useState(0)
     const [showCode, setShowCode] = useState(false)
@@ -32,6 +37,14 @@ function WebsiteEditor() {
     ]
     const handleUpdate = async () => {
         if (!prompt) return
+        if (userData?.credits < 25) {
+            setMessages((m) => [...m, { role: "ai", content: "Error: You do not have enough credits to update the website." }])
+            setTimeout(() => {
+                navigate("/pricing")
+            }, 1500)
+            return;
+        }
+
         setUpdateLoading(true)
         const text = prompt
         setPrompt("")
@@ -44,7 +57,15 @@ function WebsiteEditor() {
             setCode(result.data.code)
         } catch (error) {
             setUpdateLoading(false)
+            const errorMsg = error.response?.data?.message || "Something went wrong"
+            setMessages((m) => [...m, { role: "ai", content: `Error: ${errorMsg}` }])
             console.log(error)
+            
+            if (errorMsg.toLowerCase().includes("credits")) {
+                setTimeout(() => {
+                    navigate("/pricing")
+                }, 1500)
+            }
         }
     }
 
@@ -147,9 +168,13 @@ function WebsiteEditor() {
 
                     </div>
                     <div className='p-3 border-t border-white/10'>
-                        <div className='flex gap-2'>
-                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-2xl px-4 py-3 bg-white/5 border border-white/10 text-sm outline-none' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
-                            <button className='px-4 py-3 rounded-2xl bg-white text-black' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
+                        <div className='flex gap-2 items-center'>
+                            <input type='file' accept='image/*' className='hidden' ref={fileInputRef} />
+                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 transition-colors'>
+                                <Plus size={18} />
+                            </button>
+                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-white/5 border border-white/10 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
+                            <button className='px-5 py-3 rounded-full bg-white text-black hover:scale-105 transition-transform' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
                         </div>
                     </div>
 
@@ -221,9 +246,13 @@ function WebsiteEditor() {
 
                     </div>
                     <div className='p-3 border-t border-white/10'>
-                        <div className='flex gap-2'>
-                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-2xl px-4 py-3 bg-white/5 border border-white/10 text-sm outline-none' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
-                            <button className='px-4 py-3 rounded-2xl bg-white text-black' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
+                        <div className='flex gap-2 items-center'>
+                            <input type='file' accept='image/*' className='hidden' ref={fileInputRef} />
+                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 transition-colors'>
+                                <Plus size={18} />
+                            </button>
+                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-white/5 border border-white/10 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
+                            <button className='px-5 py-3 rounded-full bg-white text-black hover:scale-105 transition-transform' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
                         </div>
                     </div>
 
