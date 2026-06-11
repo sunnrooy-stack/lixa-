@@ -7,63 +7,86 @@ const extractJson = async (text) => {
         .replace(/```/g, "")
         .trim();
 
-        const firstBrace=cleaned.indexOf('{')
-        const closeBrace=cleaned.lastIndexOf('}')
-        if(firstBrace===-1 || closeBrace==-1)return null
-        const jsonString=cleaned.slice(firstBrace,closeBrace+1)
+    const firstBrace = cleaned.indexOf('{')
+    const closeBrace = cleaned.lastIndexOf('}')
+    if (firstBrace === -1) return null
+    const jsonString = closeBrace === -1 ? cleaned.slice(firstBrace) : cleaned.slice(firstBrace, closeBrace + 1)
+    
+    try {
+        return JSON.parse(jsonString)
+    } catch (e) {
+        console.log("JSON parse failed, attempting to fix truncated response for multi-file array...")
         
         try {
-            return JSON.parse(jsonString)
-        } catch (e) {
-            console.log("JSON parse failed, attempting to fix truncated response...")
+            // Extract message field
+            const messageMatch = jsonString.match(/"message"\s*:\s*"([^"]*)"/)
+            const message = messageMatch ? messageMatch[1] : "Website generated"
             
-            // Try to fix truncated JSON: find the last complete "code" value
-            try {
-                // Extract message field
-                const messageMatch = jsonString.match(/"message"\s*:\s*"([^"]*)"/)
-                const message = messageMatch ? messageMatch[1] : "Website generated"
-                
-                // Extract code field - find everything after "code": "
-                const codeStart = jsonString.indexOf('"code"')
-                if (codeStart === -1) return null
-                
-                const valueStart = jsonString.indexOf('"', codeStart + 6) + 1
-                if (valueStart === 0) return null
-                
-                // Get the code content, it may be truncated
-                let codeContent = jsonString.slice(valueStart)
-                
-                // Remove trailing incomplete parts
-                if (codeContent.endsWith('"')) {
-                    codeContent = codeContent.slice(0, -1)
-                } else if (codeContent.endsWith('"}')) {
-                    codeContent = codeContent.slice(0, -2)
-                } else {
-                    // Truncated - close any open HTML tags
-                    // Remove last incomplete tag if any
-                    const lastOpenTag = codeContent.lastIndexOf('<')
-                    const lastCloseTag = codeContent.lastIndexOf('>')
-                    if (lastOpenTag > lastCloseTag) {
-                        codeContent = codeContent.slice(0, lastOpenTag)
+            const files = []
+            const filesIndex = jsonString.indexOf('"files"')
+            
+            if (filesIndex !== -1) {
+                let searchIndex = filesIndex
+                while (true) {
+                    const pathKeyIndex = jsonString.indexOf('"path"', searchIndex)
+                    if (pathKeyIndex === -1) break
+                    
+                    const pathValStart = jsonString.indexOf('"', pathKeyIndex + 6)
+                    if (pathValStart === -1) break
+                    const pathValEnd = jsonString.indexOf('"', pathValStart + 1)
+                    if (pathValEnd === -1) break
+                    const path = jsonString.slice(pathValStart + 1, pathValEnd)
+                    
+                    const contentKeyIndex = jsonString.indexOf('"content"', pathValEnd)
+                    if (contentKeyIndex === -1) {
+                        searchIndex = pathValEnd
+                        continue
                     }
-                    // Ensure HTML is properly closed
-                    if (!codeContent.includes('</body>')) {
-                        codeContent += '</body>'
+                    
+                    const contentValStart = jsonString.indexOf('"', contentKeyIndex + 9)
+                    if (contentValStart === -1) {
+                        files.push({ path, content: "" })
+                        break
                     }
-                    if (!codeContent.includes('</html>')) {
-                        codeContent += '</html>'
+                    
+                    let contentValEnd = -1
+                    let isEscaped = false
+                    for (let i = contentValStart + 1; i < jsonString.length; i++) {
+                        const char = jsonString[i]
+                        if (isEscaped) {
+                            isEscaped = false
+                        } else if (char === '\\') {
+                            isEscaped = true
+                        } else if (char === '"') {
+                            contentValEnd = i
+                            break
+                        }
+                    }
+                    
+                    let content = ""
+                    if (contentValEnd === -1) {
+                        content = jsonString.slice(contentValStart + 1)
+                        // Clean up trailing json chars if any
+                        content = content.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\t/g, '\t')
+                        files.push({ path, content })
+                        break
+                    } else {
+                        content = jsonString.slice(contentValStart + 1, contentValEnd)
+                        content = content.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\t/g, '\t')
+                        files.push({ path, content })
+                        searchIndex = contentValEnd + 1
                     }
                 }
-                
-                // Unescape JSON string escapes
-                codeContent = codeContent.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\t/g, '\t')
-                
-                return { message, code: codeContent }
-            } catch (fixErr) {
-                console.log("Could not fix truncated JSON:", fixErr.message)
-                return null
             }
+            
+            if (files.length > 0) {
+                return { message, files }
+            }
+            return null
+        } catch (fixErr) {
+            console.log("Could not fix truncated JSON:", fixErr.message)
+            return null
         }
-
+    }
 }
 export default extractJson

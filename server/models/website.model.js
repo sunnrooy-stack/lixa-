@@ -26,8 +26,12 @@ const websiteSchema=new mongoose.Schema({
     },
     latestCode:{
         type:String,
-        required:true
+        required:false
     },
+    files: [{
+        path: { type: String, required: true },
+        content: { type: String, required: true }
+    }],
     conversation:[
         messageSchema
     ],
