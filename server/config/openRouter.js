@@ -19,7 +19,7 @@ export const generateResponse = async (prompt) => {
                 },
             ],
             temperature:0.2,
-            max_tokens: 4096
+            max_tokens: 12000
         }),
     });
 
