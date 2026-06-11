@@ -18,13 +18,15 @@ export const generateResponse = async (prompt) => {
                     content: prompt,
                 },
             ],
-            temperature:0.2
+            temperature:0.2,
+            max_tokens: 4096
         }),
     });
 
 if(!res.ok){
     const err=await res.text()
-    throw new Error("openRouter err"+err)
+    console.log("OpenRouter API Error:", err)
+    throw new Error("AI service is temporarily unavailable. Please try again later.")
 }
 
 const data=await res.json()
