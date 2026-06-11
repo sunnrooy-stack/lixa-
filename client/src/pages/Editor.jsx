@@ -37,13 +37,6 @@ function WebsiteEditor() {
     ]
     const handleUpdate = async () => {
         if (!prompt) return
-        if (userData?.credits < 25) {
-            setMessages((m) => [...m, { role: "ai", content: "Error: You do not have enough credits to update the website." }])
-            setTimeout(() => {
-                navigate("/pricing")
-            }, 1500)
-            return;
-        }
 
         setUpdateLoading(true)
         const text = prompt

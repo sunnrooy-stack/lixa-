@@ -76,13 +76,6 @@ function Generate() {
     }, []);
 
     const handleGenerateWebsite = async () => {
-        if (userData?.credits < 50) {
-            setError("You do not have enough credits to generate a website.")
-            setTimeout(() => {
-                navigate("/pricing")
-            }, 1500)
-            return;
-        }
 
         setLoading(true)
         try {
