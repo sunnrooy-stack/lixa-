@@ -51,10 +51,11 @@ function WebsiteEditor() {
         } catch (error) {
             setUpdateLoading(false)
             const errorMsg = error.response?.data?.message || "Something went wrong"
+            const statusCode = error.response?.status
             setMessages((m) => [...m, { role: "ai", content: `Error: ${errorMsg}` }])
             console.log(error)
             
-            if (errorMsg.toLowerCase().includes("credits")) {
+            if (statusCode === 400 && errorMsg.toLowerCase().includes("not enough credits")) {
                 setTimeout(() => {
                     navigate("/pricing")
                 }, 1500)

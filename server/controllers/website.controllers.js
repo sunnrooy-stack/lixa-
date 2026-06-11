@@ -181,9 +181,9 @@ export const generateWebsite = async (req, res) => {
 
         }
 
-        if (!parsed.code) {
+        if (!parsed || !parsed.code) {
             console.log("ai returned invalid response", raw)
-            return res.status(400).json({ message: "ai returned invalid response" })
+            return res.status(500).json({ message: "AI returned invalid response, please try again" })
         }
 
         const website = await Website.create({

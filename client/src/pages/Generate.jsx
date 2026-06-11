@@ -87,10 +87,11 @@ function Generate() {
         } catch (error) {
             setLoading(false)
             const errorMsg = error.response?.data?.message || "something went wrong"
+            const statusCode = error.response?.status
             setError(errorMsg)
             console.log(error)
             
-            if (errorMsg.toLowerCase().includes("credits")) {
+            if (statusCode === 400 && errorMsg.toLowerCase().includes("not enough credits")) {
                 setTimeout(() => {
                     navigate("/pricing")
                 }, 1500)
