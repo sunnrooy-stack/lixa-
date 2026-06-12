@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { serverUrl } from '../App'
 import { useState } from 'react'
-import { ArrowLeft, Check, Code, Code2, MessageCircle, MessageSquare, Monitor, Rocket, Send, Share2, X, Plus, Folder, File, Save } from 'lucide-react'
+import { ArrowLeft, Check, Code, Code2, MessageCircle, MessageSquare, Monitor, Rocket, Send, Share2, X, Plus, Folder, File, Save, Sparkles } from 'lucide-react'
 import { useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 
@@ -218,14 +218,14 @@ function WebsiteEditor() {
 
     if (error) {
         return (
-            <div className='h-screen flex items-center justify-center bg-black text-red-400'>
+            <div className='h-screen flex items-center justify-center bg-[#0a0000] text-red-400'>
                 {error}
             </div>
         )
     }
     if (!website) {
         return (
-            <div className='h-screen flex items-center justify-center bg-black text-white'>
+            <div className='h-screen flex items-center justify-center bg-[#0a0000] text-red-200'>
                 Loading...
             </div>
         )
@@ -234,8 +234,8 @@ function WebsiteEditor() {
 
 
     return (
-        <div className='h-screen w-screen flex bg-black text-white overflow-hidden'>
-            <aside className='hidden lg:flex w-95 flex-col border-r border-white/10 bg-black/80'>
+        <div className='h-screen w-screen flex bg-[#0a0000] text-red-100 overflow-hidden'>
+            <aside className='hidden lg:flex w-95 flex-col border-r border-red-500/20 bg-[#0d0000]/90'>
                 <Header />
                 <>
                     <div className='flex-1 overflow-y-auto px-4 py-4 space-y-4'>
@@ -248,8 +248,8 @@ function WebsiteEditor() {
 
                                 <div
                                     className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${m.role === "user"
-                                        ? "bg-white text-black"
-                                        : "bg-white/5 border border-white/10 text-zinc-200"
+                                        ? "bg-red-600/30 text-red-100 border border-red-500/30"
+                                        : "bg-red-950/40 border border-red-500/15 text-red-200/80"
                                         }`}
                                 >
 
@@ -263,21 +263,24 @@ function WebsiteEditor() {
                         {updateLoading &&
 
                             <div className='max-w-[85%] mr-auto'>
-                                <div className='px-4 py-2.5 rounded-2xl text-xs bg-white/5 border border-white/10 text-zinc-400 italic'>{thinkingSteps[thinkingIndex]}</div>
+                                <div className='px-4 py-2.5 rounded-2xl text-xs bg-red-950/40 border border-red-500/15 text-red-400/70 italic'>{thinkingSteps[thinkingIndex]}</div>
                             </div>}
 
 
 
 
                     </div>
-                    <div className='p-3 border-t border-white/10'>
+                    <div className='p-3 border-t border-red-500/20'>
                         <div className='flex gap-2 items-center'>
                             <input type='file' accept='image/*' className='hidden' ref={fileInputRef} />
-                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 transition-colors'>
+                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-red-950/40 border border-red-500/20 hover:bg-red-900/40 text-red-400 transition-colors'>
                                 <Plus size={18} />
                             </button>
-                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-white/5 border border-white/10 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
-                            <button className='px-5 py-3 rounded-full bg-white text-black hover:scale-105 transition-transform' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
+                            <button className='p-1.5 rounded-md border border-dashed border-red-500/30 text-red-400 hover:text-red-200 transition-colors flex items-center justify-center' title='AI Generator'>
+                                <Sparkles size={20} />
+                            </button>
+                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-red-950/30 border border-red-500/20 text-sm outline-none focus:ring-2 focus:ring-red-500/50 text-red-100 placeholder:text-red-400/40 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
+                            <button className='px-5 py-3 rounded-full bg-red-600 text-white hover:bg-red-500 hover:scale-105 transition-all shadow-lg shadow-red-600/30' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
                         </div>
                     </div>
 
@@ -285,20 +288,20 @@ function WebsiteEditor() {
             </aside>
 
             <div className='flex-1 flex flex-col'>
-                <div className='h-14 px-4 flex justify-between items-center border-b border-white/10 bg-black/80'>
-                    <span className='text-xs text-zinc-400'>Live Preview</span>
+                <div className='h-14 px-4 flex justify-between items-center border-b border-red-500/20 bg-[#0d0000]/90'>
+                    <span className='text-xs text-red-400/60'>Live Preview</span>
                     <div className='flex gap-2'>
-                        <button className='flex items-center gap-2 px-4 py-1.5 rounded-lg bg-linear-to-r from-indigo-500 to-purple-500 text-sm font-semibold hover:scale-105 transition'
+                        <button className='flex items-center gap-2 px-4 py-1.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-500 hover:scale-105 transition shadow-lg shadow-red-600/30'
                         onClick={handleDeploy}
                         ><Rocket size={14} /> Deploy</button>
-                        {website.deployUrl && <button className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition ${copied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 hover:bg-white/20 border border-white/10'}`}
+                        {website.deployUrl && <button className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold hover:scale-105 transition ${copied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-950/40 hover:bg-red-900/40 border border-red-500/20 text-red-300'}`}
                         onClick={() => { navigator.clipboard.writeText(website.deployUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                         >{copied ? <><Check size={14} /> Copied!</> : <><Share2 size={14} /> Share</>}</button>}
                        
-                        <button className='p-2 lg:hidden' onClick={() => setShowChat(true)}><MessageSquare size={18} /></button>
+                        <button className='p-2 lg:hidden text-red-400 hover:text-red-200' onClick={() => setShowChat(true)}><MessageSquare size={18} /></button>
 
-                        <button className='p-2' onClick={() => setShowCode(true)}><Code2 size={18} /></button>
-                        <button className='p-2' onClick={() => setShowFullPreview(true)}><Monitor size={18} /></button>
+                        <button className='p-2 text-red-400 hover:text-red-200' onClick={() => setShowCode(true)}><Code2 size={18} /></button>
+                        <button className='p-2 text-red-400 hover:text-red-200' onClick={() => setShowFullPreview(true)}><Monitor size={18} /></button>
                     </div>
 
                 </div>
@@ -312,7 +315,7 @@ function WebsiteEditor() {
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
-                        className="fixed inset-0 z-[9999] bg-black flex flex-col"
+                        className="fixed inset-0 z-[9999] bg-[#0a0000] flex flex-col"
                     >
                    <Header onclose={()=>setShowChat(false)}/>
                    <>
@@ -348,14 +351,17 @@ function WebsiteEditor() {
 
 
                     </div>
-                    <div className='p-3 border-t border-white/10'>
+                    <div className='p-3 border-t border-red-500/20'>
                         <div className='flex gap-2 items-center'>
                             <input type='file' accept='image/*' className='hidden' ref={fileInputRef} />
-                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 transition-colors'>
+                            <button onClick={() => fileInputRef.current?.click()} className='p-3 rounded-full bg-red-950/40 border border-red-500/20 hover:bg-red-900/40 text-red-400 transition-colors'>
                                 <Plus size={18} />
                             </button>
-                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-white/5 border border-white/10 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
-                            <button className='px-5 py-3 rounded-full bg-white text-black hover:scale-105 transition-transform' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
+                            <button className='p-1.5 rounded-md border border-dashed border-red-500/30 text-red-400 hover:text-red-200 transition-colors flex items-center justify-center' title='AI Generator'>
+                                <Sparkles size={20} />
+                            </button>
+                            <input placeholder='Describe Changes...' className='flex-1 resize-none rounded-full px-5 py-3 bg-red-950/30 border border-red-500/20 text-sm outline-none focus:ring-2 focus:ring-red-500/50 text-red-100 placeholder:text-red-400/40 transition-all' onChange={(e) => setPrompt(e.target.value)} value={prompt} />
+                            <button className='px-5 py-3 rounded-full bg-red-600 text-white hover:bg-red-500 hover:scale-105 transition-all shadow-lg shadow-red-600/30' disabled={updateLoading} onClick={handleUpdate}><Send size={14} /></button>
                         </div>
                     </div>
 
@@ -371,13 +377,13 @@ function WebsiteEditor() {
                         initial={{ x: "100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
-                        className="fixed inset-y-0 right-0 w-full lg:w-[60%] z-[9999] bg-[#1e1e1e] flex flex-col shadow-2xl border-l border-white/10"
+                        className="fixed inset-y-0 right-0 w-full lg:w-[60%] z-[9999] bg-[#0d0000] flex flex-col shadow-2xl shadow-red-900/30 border-l border-red-500/20"
                     >
                         {/* Header bar */}
-                        <div className='h-12 px-4 flex justify-between items-center border-b border-white/10 bg-[#181818]'>
+                        <div className='h-12 px-4 flex justify-between items-center border-b border-red-500/20 bg-[#0a0000]'>
                             <div className='flex items-center gap-2'>
-                                <Code size={16} className="text-zinc-400" />
-                                <span className='text-sm font-medium text-zinc-300'>Project Editor</span>
+                                <Code size={16} className="text-red-400" />
+                                <span className='text-sm font-medium text-red-300'>Project Editor</span>
                             </div>
                             <div className='flex items-center gap-3'>
                                 <button 
@@ -386,13 +392,13 @@ function WebsiteEditor() {
                                     className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition ${
                                         saved 
                                             ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                                            : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50'
+                                            : 'bg-red-600 hover:bg-red-500 text-white disabled:opacity-50'
                                     }`}
                                 >
                                     <Save size={13} />
                                     {saveLoading ? "Saving..." : saved ? "Saved!" : "Save Changes"}
                                 </button>
-                                <button onClick={() => setShowCode(false)} className="text-zinc-400 hover:text-white transition">
+                                <button onClick={() => setShowCode(false)} className="text-red-400 hover:text-red-200 transition">
                                     <X size={18} />
                                 </button>
                             </div>
@@ -401,8 +407,8 @@ function WebsiteEditor() {
                         {/* Split panel for File Explorer and Monaco Editor */}
                         <div className="flex-1 flex overflow-hidden">
                             {/* File Explorer (Left side of the Code Drawer) */}
-                            <div className="w-56 border-r border-white/5 bg-[#141414] p-3 flex flex-col overflow-y-auto">
-                                <div className="text-xxs font-bold tracking-wider text-zinc-500 uppercase mb-3">Workspace Files</div>
+                            <div className="w-56 border-r border-red-500/10 bg-[#080000] p-3 flex flex-col overflow-y-auto">
+                                <div className="text-xxs font-bold tracking-wider text-red-500/50 uppercase mb-3">Workspace Files</div>
                                 {(() => {
                                     // Group files by top-level folder
                                     const folders = {};
@@ -423,11 +429,11 @@ function WebsiteEditor() {
                                         <div className="space-y-3 font-mono text-xs select-none">
                                             {Object.keys(folders).map(folder => (
                                                 <div key={folder} className="space-y-1">
-                                                    <div className="flex items-center gap-1.5 px-1 py-0.5 text-zinc-400 font-semibold">
-                                                        <Folder size={13} className="text-amber-500/80" />
+                                                    <div className="flex items-center gap-1.5 px-1 py-0.5 text-red-300/70 font-semibold">
+                                                        <Folder size={13} className="text-red-500/80" />
                                                         <span>{folder}</span>
                                                     </div>
-                                                    <div className="pl-3 border-l border-zinc-800 ml-2 space-y-0.5">
+                                                    <div className="pl-3 border-l border-red-500/10 ml-2 space-y-0.5">
                                                         {folders[folder].map(file => {
                                                             const isActive = activeFile && activeFile.path === file.path;
                                                             const fileName = file.path.split('/').slice(1).join('/');
@@ -437,11 +443,11 @@ function WebsiteEditor() {
                                                                     onClick={() => setActiveFile(file)}
                                                                     className={`flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer transition-colors ${
                                                                         isActive 
-                                                                            ? 'bg-white/10 text-white font-medium' 
-                                                                            : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+                                                                            ? 'bg-red-500/15 text-red-200 font-medium border border-red-500/20' 
+                                                                            : 'text-red-400/40 hover:bg-red-500/10 hover:text-red-300'
                                                                     }`}
                                                                 >
-                                                                    <File size={11} className={isActive ? 'text-zinc-200' : 'text-zinc-600'} />
+                                                                    <File size={11} className={isActive ? 'text-red-300' : 'text-red-500/30'} />
                                                                     <span className="truncate">{fileName}</span>
                                                                 </div>
                                                             );
@@ -450,7 +456,7 @@ function WebsiteEditor() {
                                                 </div>
                                             ))}
                                             {rootFiles.length > 0 && (
-                                                <div className="pt-2 border-t border-zinc-800/50 space-y-0.5">
+                                                <div className="pt-2 border-t border-red-500/10 space-y-0.5">
                                                     {rootFiles.map(file => {
                                                         const isActive = activeFile && activeFile.path === file.path;
                                                         return (
@@ -459,11 +465,11 @@ function WebsiteEditor() {
                                                                 onClick={() => setActiveFile(file)}
                                                                 className={`flex items-center gap-1.5 px-2 py-1 rounded-md cursor-pointer transition-colors ${
                                                                     isActive 
-                                                                        ? 'bg-white/10 text-white font-medium' 
-                                                                        : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+                                                                        ? 'bg-red-500/15 text-red-200 font-medium border border-red-500/20' 
+                                                                        : 'text-red-400/40 hover:bg-red-500/10 hover:text-red-300'
                                                                 }`}
                                                             >
-                                                                <File size={11} className={isActive ? 'text-zinc-200' : 'text-zinc-600'} />
+                                                                <File size={11} className={isActive ? 'text-red-300' : 'text-red-500/30'} />
                                                                 <span className="truncate">{file.path}</span>
                                                             </div>
                                                         );
@@ -476,10 +482,10 @@ function WebsiteEditor() {
                             </div>
 
                             {/* Monaco Editor Pane (Right side of the Code Drawer) */}
-                            <div className="flex-1 flex flex-col bg-[#1e1e1e]">
+                            <div className="flex-1 flex flex-col bg-[#0d0000]">
                                 {activeFile && (
-                                    <div className="h-8 px-4 flex items-center bg-[#1b1b1b] border-b border-white/5">
-                                        <span className="text-xxs font-mono text-zinc-400">{activeFile.path}</span>
+                                    <div className="h-8 px-4 flex items-center bg-[#0a0000] border-b border-red-500/10">
+                                        <span className="text-xxs font-mono text-red-400/60">{activeFile.path}</span>
                                     </div>
                                 )}
                                 <div className="flex-1">
@@ -491,7 +497,7 @@ function WebsiteEditor() {
                                             onChange={handleFileContentChange}
                                         />
                                     ) : (
-                                        <div className="h-full flex items-center justify-center text-zinc-500 text-sm">
+                                        <div className="h-full flex items-center justify-center text-red-400/40 text-sm">
                                             Select a file to edit
                                         </div>
                                     )}
@@ -505,7 +511,7 @@ function WebsiteEditor() {
             <AnimatePresence>
                 {showFullPreview && (
                     <motion.div
-                        className="fixed inset-0 z-[9999] bg-black"
+                        className="fixed inset-0 z-[9999] bg-[#0a0000]"
                     >
                         <iframe className='w-full h-full bg-white' srcDoc={code} sandbox='allow-scripts allow-same-origin allow-forms'/>
                         <button onClick={() => setShowFullPreview(false)} className='absolute top-4 right-4 p-2 bg-black/70 rounded-lg'><X /></button>
@@ -519,8 +525,8 @@ function WebsiteEditor() {
 
     function Header({onclose}) {
         return (
-            <div className='h-14 px-4 flex items-center justify-between border-b border-white/10'>
-                <span className='font-semibold truncate'>{website.title}</span>
+            <div className='h-14 px-4 flex items-center justify-between border-b border-red-500/20'>
+                <span className='font-semibold truncate text-red-100'>{website.title}</span>
                 {onclose &&  <button onClick={onclose}><X size={18} color='white'/></button>}
            
             </div>

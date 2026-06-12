@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Monitor, Smartphone, Palette, PlayCircle, X, Check } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from "motion/react"
 import { useSelector } from 'react-redux'
 import axios from "axios"
@@ -25,6 +25,7 @@ const CATEGORIES = [
 function Generate() {
     const { userData } = useSelector(state => state.user) || {}
     const navigate = useNavigate()
+    const location = useLocation()
     const [prompt, setPrompt] = useState("")
     const [loading, setLoading] = useState(false)
     const [progress, setProgress] = useState(0)
@@ -32,6 +33,15 @@ function Generate() {
     const [error,setError]=useState("")
     const [placeholderText, setPlaceholderText] = useState("")
     const [selectedCategory, setSelectedCategory] = useState(null)
+
+    useEffect(() => {
+        if (location.state && location.state.prompt) {
+            setPrompt(location.state.prompt);
+            if (location.state.category) {
+                setSelectedCategory(location.state.category);
+            }
+        }
+    }, [location]);
 
     useEffect(() => {
         const placeholders = [
@@ -133,7 +143,18 @@ function Generate() {
     }, [loading])
 
     return (
-        <div className='min-h-screen bg-linear-to-br from-[#050505] via-[#0b0b0b] to-[#050505] text-white'>
+        <div className='relative min-h-screen bg-black text-white overflow-hidden'>
+            {/* Background Video */}
+            <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            >
+                <source src="https://res.cloudinary.com/dh0qmflg7/video/upload/v1781240291/animation_on_video_like_play_a_1_rxpiqz.mp4" type="video/mp4" />
+            </video>
+
             <div className='sticky top-0 z-40 backdrop-blur-xl bg-black/50 border-b border-white/10'>
                 <div className='max-w-7xl mx-auto px-6 h-16 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
@@ -145,7 +166,7 @@ function Generate() {
                 </div>
             </div>
 
-            <div className='max-w-6xl mx-auto px-6 py-16'>
+            <div className='relative z-10 max-w-6xl mx-auto px-6 py-16'>
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
